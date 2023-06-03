@@ -1,19 +1,19 @@
-package Sys::Virt::Event::IO::Async;
+package Sys::Virt::IO::Async::Event;
 
 =head1 NAME
 
-Sys::Virt::Event::IO::Async - Integration of libvirt into IO::Async event loop
+Sys::Virt::IO::Async::Event - Integration of libvirt into IO::Async event loop
 
 =head1 SYNOPSIS
 
   use Sys::Virt;
   use Sys::Virt::Event;
-  use Sys::Virt::Event::IO::Async;
+  use Sys::Virt::IO::Async::Event;
 
   use IO::Async::Loop;
 
   my $loop = IO::Async::Loop;
-  my $impl = Sys::Virt::Event::IO::Async->new($loop);
+  my $impl = Sys::Virt::IO::Async::Event->new($loop);
   Sys::Virt::Event::register($impl);
 
 
@@ -54,6 +54,8 @@ use IO::Async::Timer::Periodic;
 use IO::Handle;
 
 use Log::Any '$log';
+
+our $VERSION = '0.0.2';
 
 =head1 METHODS
 
