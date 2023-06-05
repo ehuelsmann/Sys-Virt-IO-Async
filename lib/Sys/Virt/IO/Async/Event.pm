@@ -130,8 +130,7 @@ sub add_handle {
                 $log->trace( "on_error" );
                 $self->_run_handle_callback( $watch_id, $fd,
                                              Sys::Virt::Event::HANDLE_ERROR,
-                                             $cb, $data )
-                    if ($watch->{events} & Sys::Virt::Event::HANDLE_ERROR);
+                                             $cb, $data );
             },
             on_read_ready => sub {
                 $log->trace( "on_read_ready" );
@@ -149,8 +148,7 @@ sub add_handle {
                 $log->trace( "on_closed" );
                 $self->_run_handle_callback( $watch_id, $fd,
                                              Sys::Virt::Event::HANDLE_HANGUP,
-                                             $cb, $data )
-                    if ($watch->{events} & Sys::Virt::Event::HANDLE_HANGUP);
+                                             $cb, $data );
             });
         $self->{_watches}->{$watch_id} = $watch;
         $self->update_handle( $watch_id, $events );

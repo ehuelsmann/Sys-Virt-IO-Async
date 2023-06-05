@@ -2,6 +2,8 @@ Revision history for Sys-Virt-IO-Async
 
 0.0.3    to be released
          * Fix POD error
+         * Always pass HANDLE_ERROR and HANDLE_HANGUP events,
+           even when the caller didn't ask for them
 
 0.0.2    2023-06-03
          * Fix dist not being indexed
