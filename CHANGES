@@ -1,5 +1,8 @@
 Revision history for Sys-Virt-IO-Async
 
+0.0.3    to be released
+         * Fix POD error
+
 0.0.2    2023-06-03
          * Fix dist not being indexed
          * Add $VERSION variable to modules

@@ -62,7 +62,7 @@ our $VERSION = '0.0.2';
 =head2 new( [loop => $loop] )
 
 Constructor.  Takes an optional loop parameter. When not supplied, defaults
-to the loop returned by C<IO::Async::Loop->new>.
+to the loop returned by C<< IO::Async::Loop->new >>.
 
 The returned instance can be used to register an event loop implementation
 through C<Sys::Virt::Event::register>.
