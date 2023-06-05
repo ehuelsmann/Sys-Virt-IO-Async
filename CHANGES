@@ -4,6 +4,8 @@ Revision history for Sys-Virt-IO-Async
          * Fix POD error
          * Always pass HANDLE_ERROR and HANDLE_HANGUP events,
            even when the caller didn't ask for them
+         * Clean up the opaque callback argument after
+           remove_{handle,timeout} has returned; (thanks DANBERR)
 
 0.0.2    2023-06-03
          * Fix dist not being indexed

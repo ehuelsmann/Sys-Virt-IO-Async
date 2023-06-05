@@ -99,8 +99,12 @@ sub _remove_watch {
     my $watch = delete $self->{_watches}->{$watch_id};
 
     $watch->{notifier}->remove_from_parent();
-    $self->_free_callback_opaque($watch->{free_cb}, $watch->{opaque});
-    $log->trace( 'watch deallocated' );
+    $self->{_loop}->later(
+        sub{
+            $self->_free_callback_opaque($watch->{free_cb}, $watch->{opaque});
+            $log->trace( 'opaque deallocated' );
+        });
+    $log->trace( 'watch removed' );
 }
 
 =head2 $self->add_handle( $fd, $events, $callback, $opaque, $opaque_free_cb )
