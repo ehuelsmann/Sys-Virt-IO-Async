@@ -2,7 +2,7 @@ package Sys::Virt::IO::Async;
 
 use Sys::Virt::Event::IO::Async;
 
-our $VERSION = '0.0.2';
+our $VERSION = '0.0.3';
 
 1;
 
