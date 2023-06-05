@@ -13,7 +13,7 @@ Sys::Virt::IO::Async::Event - Integration of libvirt into IO::Async event loop
   use IO::Async::Loop;
 
   my $loop = IO::Async::Loop;
-  my $impl = Sys::Virt::IO::Async::Event->new($loop);
+  my $impl = Sys::Virt::IO::Async::Event->new(loop => $loop);
   Sys::Virt::Event::register($impl);
 
 
