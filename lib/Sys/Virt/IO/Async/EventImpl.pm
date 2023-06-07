@@ -1,20 +1,20 @@
-package Sys::Virt::IO::Async::Event;
+package Sys::Virt::IO::Async::EventImpl;
 
 =head1 NAME
 
-Sys::Virt::IO::Async::Event - Integration of libvirt into IO::Async event loop
+Sys::Virt::IO::Async::EventImpl - Integration of libvirt into IO::Async event loop
 
 =head1 SYNOPSIS
 
   use Sys::Virt;
   use Sys::Virt::Event;
-  use Sys::Virt::IO::Async::Event;
+  use Sys::Virt::IO::Async::EventImpl;
 
   use IO::Async::Loop;
 
   my $loop = IO::Async::Loop;
-  my $impl = Sys::Virt::IO::Async::Event->new(loop => $loop);
-  Sys::Virt::Event::register($impl);
+  my $impl = Sys::Virt::IO::Async::EventImpl->new;
+  Sys::Virt::Event::register( $impl );
 
 
   my $conn = Sys::Virt->new( uri => 'qemu:///system' );
@@ -23,6 +23,7 @@ Sys::Virt::IO::Async::Event - Integration of libvirt into IO::Async event loop
        # ... log some event data
      });
 
+  $loop->add( $impl );
   $loop->run;
 
 =head1 DESCRIPTION
@@ -43,13 +44,21 @@ as the logging category.
 use strict;
 use warnings;
 
-use parent 'Sys::Virt::Event';
+BEGIN {
+    local $@;
+    if (eval { require 'Sys::Virt::EventImpl' }) {
+        eval "use parent qw(Sys::Virt::EventImpl IO::Async::Notifier);";
+    }
+    else {
+        eval "use parent qw(Sys::Virt::Event IO::Async::Notifier);";
+    }
+}
+
 use Sys::Virt;
 use Sys::Virt::Event;
 
 use Feature::Compat::Try;
 use IO::Async::Handle;
-use IO::Async::Loop;
 use IO::Async::Timer::Periodic;
 use IO::Handle;
 
@@ -59,21 +68,26 @@ our $VERSION = '0.0.3';
 
 =head1 METHODS
 
-=head2 new( [loop => $loop] )
+=head2 new()
 
-Constructor.  Takes an optional loop parameter. When not supplied, defaults
-to the loop returned by C<< IO::Async::Loop->new >>.
+Constructor.
 
-The returned instance can be used to register an event loop implementation
-through C<Sys::Virt::Event::register>.
+As there can only ever be a single event loop registered at a time, this
+module implements a singleton class.  The C<new> method always returns the
+same instance.
+
+The returned instance is an C<IO::Async::Notifier> that can be used to
+register an event loop implementation through C<Sys::Virt::Event::register>.
 
 =cut
 
+my $impl;
 sub new {
     my ($class, %args) = @_;
+    return $impl if $impl;
+
     $log->trace( 'Async event loop creation' );
-    return bless {
-        _loop => ($args{loop} || IO::Async::Loop->new),
+    return $impl = bless {
         _watches => {},
     }, $class;
 }
@@ -98,8 +112,8 @@ sub _remove_watch {
     my ($self, $watch_id) = @_;
     my $watch = delete $self->{_watches}->{$watch_id};
 
-    $watch->{notifier}->remove_from_parent();
-    $self->{_loop}->later(
+    $self->remove_child( $watch->{notifier} );
+    $self->loop->later(
         sub{
             $self->_free_callback_opaque($watch->{free_cb}, $watch->{opaque});
             $log->trace( 'opaque deallocated' );
@@ -157,7 +171,7 @@ sub add_handle {
         $self->{_watches}->{$watch_id} = $watch;
         $self->update_handle( $watch_id, $events );
 
-        $self->{_loop}->add( $watch->{notifier} );
+        $self->add_child( $watch->{notifier} );
         $log->trace( 'handle added' );
         return $watch_id;
     }
@@ -260,18 +274,17 @@ sub update_timeout {
     my ($self, $timer_id, $freq) = @_;
     my $timer = $self->{_watches}->{$timer_id};
 
-    $timer->{notifier}->remove_from_parent
+    $self->remove_child( $timer->{notifier} )
         if $timer->{notifier};
     my $idler = delete $timer->{idle_watch};
-    $self->{_loop}->unwatch_idle( $idler );
+    $self->loop->unwatch_idle( $idler );
 
-    if ($freq <= 0) {
-        if ($freq < 0) {
-            $log->trace( "Disabled timer" );
-            return;
-        }
+    if ($freq < 0) {
+        $log->trace( "Disabled timer" );
+    }
+    elsif ($freq == 0) {
         # $freq == 0: trigger callback on each iteration
-        $timer->{idle_watch} = $self->{_loop}->watch_idle(
+        $timer->{idle_watch} = $self->loop->watch_idle(
             when => 'later',
             code => sub {
                 $log->trace( "on_tick" );
@@ -279,19 +292,21 @@ sub update_timeout {
                                               $timer->{cb},
                                               $timer->{opaque} );
             });
-        return;
     }
-    $log->trace( "Updating timer: $freq" );
-    $timer->{notifier} = IO::Async::Timer::Periodic->new(
-        interval => ($freq / 1000),
-        on_tick => sub {
-            $log->trace( "on_tick" );
-            $self->_run_timeout_callback( $timer_id,
-                                          $timer->{cb},
-                                          $timer->{opaque} );
-        },
-        reschedule => 'drift');
-    $self->{_loop}->add( $timer->{notifier}->start );
+    else {
+        $log->trace( "Updating timer: $freq" );
+        $timer->{notifier} = IO::Async::Timer::Periodic->new(
+            interval => ($freq / 1000),
+            on_tick => sub {
+                $log->trace( "on_tick" );
+                $self->_run_timeout_callback( $timer_id,
+                                              $timer->{cb},
+                                              $timer->{opaque} );
+            },
+            reschedule => 'drift');
+        $self->add_child( $timer->{notifier}->start );
+    }
+    return;
 }
 
 =head2 $self->remove_timeout( $timer_id )
