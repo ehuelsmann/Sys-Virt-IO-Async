@@ -1,5 +1,8 @@
 Revision history for Sys-Virt-IO-Async
 
+0.0.6    to be released
+         * Fix deadlock while cleaning up connection resources on close
+
 0.0.5    2023-06-11
          * Remove closed Sys::Virt::IO::Async from parent
          * Fix POD failure

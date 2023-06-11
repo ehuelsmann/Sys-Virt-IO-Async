@@ -12,23 +12,25 @@ use Symbol 'qualify_to_ref';
 
 our $VERSION = '0.0.5';
 
-
 sub _make_close_cb {
     my ($self) = @_;
     my $on_close = $self->{on_close} // sub {};
-    if (reftype $on_close ne 'CODE') {
-        # If it's not a coderef, it must be a future
-        $on_close = sub {
-            $self->loop->later(sub { $on_close->done(); });
-        };
-    }
-    return $self->_capture_weakself(
+
+    return $self->_replace_weakself(
         sub {
             my ($self, @args) = @_;
 
-            $on_close->($self, @args);
-            $self->deregister_callbacks;
-            $self->remove_from_parent;
+            $on_close->( $self, @args )
+                if reftype $on_close eq 'CODE';
+            $self->loop->later(
+                sub {
+                    $self->deregister_callbacks;
+                    $self->{virt}->domain_event_deregister;
+                    $self->{virt}->unregister_close_callback;
+                    $on_close->done( $self, @args )
+                        if reftype $on_close ne 'CODE';
+                    $self->remove_from_parent;
+                });
         });
 }
 
@@ -299,7 +301,10 @@ Constructor.  Returns a C<Sys::Virt::IO::Async> instance.
 
 The C<$on_close> argument is either a coderef to be executed when the
 connection closes, or a future which will be resolved after the callback
-completes.
+completes.  The callback receives the same parameters as documented for
+C<Sys::Virt>'s callback.  The first parameter is replaced with a reference
+to the C<Sys::Virt::IO::Async> instance.  The future resolves to the same
+list of values.
 
 The C<$change> argument is either a coderef to be executed when a domain
 life cycle event occurs, or a L<Future::Queue> instance which will have
