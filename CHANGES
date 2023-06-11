@@ -6,10 +6,11 @@ Revision history for Sys-Virt-IO-Async
            remain in place "only" until mid 2025)
          * Rename Sys::Virt::IO::Async::Event to
            Sys::Virt::IO::Async::EventImpl
-         * Make the event implementation a notifier so it can be
+         * Make the event implementation a notifier, making it
            a container for handles and timers
          * Add Sys::Virt::IO::Async, a notifier & wrapper
            around Sys::Virt
+         * Add domain life cycle event examples
 
 0.0.3    2023-06-05
          * Fix POD error

@@ -9,6 +9,11 @@ requires 'Log::Any';
 requires 'Sys::Virt';
 requires 'Sys::Virt::Event';
 
+feature 'examples' => sub {
+    requires 'Future::AsyncAwait';
+    requires 'Future::Queue';
+};
+
 on develop => sub {
     requires 'Dist::Zilla';
 };
