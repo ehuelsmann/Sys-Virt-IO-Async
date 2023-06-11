@@ -28,6 +28,7 @@ sub _make_close_cb {
 
             $on_close->($self, @args);
             $self->deregister_callbacks;
+            $self->remove_from_parent;
         });
 }
 
