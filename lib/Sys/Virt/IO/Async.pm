@@ -10,7 +10,7 @@ use Feature::Compat::Try;
 use Scalar::Util 'reftype';
 use Symbol 'qualify_to_ref';
 
-our $VERSION = '0.0.4';
+our $VERSION = '0.0.5';
 
 
 sub _make_close_cb {

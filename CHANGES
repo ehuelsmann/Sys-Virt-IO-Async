@@ -1,7 +1,8 @@
 Revision history for Sys-Virt-IO-Async
 
-0.0.5    to be released
+0.0.5    2023-06-11
          * Remove closed Sys::Virt::IO::Async from parent
+         * Fix POD failure
 
 0.0.4    2023-06-11
          * Prepare for Sys::Virt::EventImpl being split out of
