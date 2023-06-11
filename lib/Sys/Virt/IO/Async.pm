@@ -261,6 +261,8 @@ Sys::Virt::IO::Async - Helpers to integrate Sys::Virt with IO::Async
   use Sys::Virt::IO::Async::EventImpl;
 
   my $impl = Sys::Virt::IO::Async::EventImpl->new;
+  Sys::Virt::Event::register( $impl );
+
   my $loop = IO::Async::Loop->new;
   $loop->add( $impl );
 
@@ -268,7 +270,6 @@ Sys::Virt::IO::Async - Helpers to integrate Sys::Virt with IO::Async
     virt => Sys::Virt->new( uri => 'qemu:///system' ),
     on_close => sub { ... },
     on_domain_change => sub { ... });
-
   $impl->add_child( $conn );
 
 
