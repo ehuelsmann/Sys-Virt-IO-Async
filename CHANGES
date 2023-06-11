@@ -8,6 +8,8 @@ Revision history for Sys-Virt-IO-Async
            Sys::Virt::IO::Async::EventImpl
          * Make the event implementation a notifier so it can be
            a container for handles and timers
+         * Add Sys::Virt::IO::Async, a notifier & wrapper
+           around Sys::Virt
 
 0.0.3    2023-06-05
          * Fix POD error
