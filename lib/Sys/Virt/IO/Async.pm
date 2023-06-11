@@ -320,14 +320,19 @@ C<secret_event_register_any> and not yet deregistered using the associated
 deregistration functions.
 
 =head2 domain_event_register
+
 =head2 domain_event_deregister
 
 Unsupported: domain event callback registration handled at instantiation.
 
 =head2 domain_event_register_any($dom, $eventID, $callback)
+
 =head2 network_event_register_any($net, $eventID, $callback)
+
 =head2 storage_pool_event_register_any($pool, $eventID, $callback)
+
 =head2 node_device_event_register_any($dev, $eventID, $callback)
+
 =head2 secret_event_register_any($secret, $eventID, $callback)
 
 Registers the callback with the wrapped C<Sys::Virt> instance; C<$callback>
@@ -350,9 +355,13 @@ connection with C<libvirt> is closed,
 Returns a C<$callbackID> to be used for explicit deregistration.
 
 =head2 domain_event_deregister_any($callbackID)
+
 =head2 network_event_deregister_any($callbackID)
+
 =head2 storage_pool_event_deregister_any($callbackID)
+
 =head2 node_device_event_deregister_any($callbackID)
+
 =head2 secret_event_deregister_any($callbackID)
 
 Deregisters the callback, preventing further calls; stops tracking the
